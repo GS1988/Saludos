@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xtasis Global Radio - Saludos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            color: #333;
+        }
+
+        header {
+            background-color: #e57373; /* Rojo bajito */
+            padding: 10px;
+            text-align: center;
+        }
+
+        .header-container {
+            color: white;
+        }
+
+        .fm {
+            font-weight: bold;
+        }
+
+        nav {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #menu-btn {
+            background-color: #e57373; /* Rojo bajito */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #menu-btn:hover {
+            background-color: #c62828; /* Rojo más oscuro */
+        }
+
+        .menu-content {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .menu-content.active {
+            display: block;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        form {
+            max-width: 500px;
+            margin: auto;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #greetings-list {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>Xtasis Global Radio</h1>
+            <p class="fm">100.9 FM</p>
+        </div>
+        <nav>
+            <button id="menu-btn">Menú</button>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="menu-content" id="menu-content">
+            <div class="content-section" id="send-greetings">
+                <h2>Manda tus saludos</h2>
+                <form id="greeting-form">
+                    <label for="name">Nombre:</label>
+                    <input type="text" id="name" name="name" required>
+
+                    <label for="city">Ciudad:</label>
+                    <select id="city" name="city" required>
+                        <option value="Nuevo Laredo">Nuevo Laredo</option>
+                        <option value="Laredo TX">Laredo TX</option>
+                    </select>
+
+                    <label for="colonia">Colonia:</label>
+                    <input type="text" id="colonia" name="colonia">
+
+                    <label for="message">Mensaje:</label>
+                    <textarea id="message" name="message" rows="4" required></textarea>
+
+                    <button type="submit">Enviar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Esta sección está oculta si no se despliega el menú -->
+        <section id="greetings-display">
+            <h2>Saludos Recientes</h2>
+            <div id="greetings-list"></div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('greeting-form');
+            const greetingsList = document.getElementById('greetings-list');
+            const menuBtn = document.getElementById('menu-btn');
+            const menuContent = document.getElementById('menu-content');
+
+            // Load greetings from localStorage
+            loadGreetings();
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById('name').value;
+                const city = document.getElementById('city').value;
+                const colonia = document.getElementById('colonia').value;
+                const message = document.getElementById('message').value;
+                const timestamp = new Date().getTime();
+
+                const greeting = {
+                    name,
+                    city,
+                    colonia,
+                    message,
+                    timestamp
+                };
+
+                saveGreeting(greeting);
+                displayGreeting(greeting);
+
+                form.reset();
+            });
+
+            menuBtn.addEventListener('click', () => {
+                menuContent.classList.toggle('active');
+            });
+
+            function saveGreeting(greeting) {
+                let greetings = JSON.parse(localStorage.getItem('greetings')) || [];
+                greetings = greetings.filter(g => new Date().getTime() - g.timestamp < 3600000); // Remove expired greetings
+                greetings.push(greeting);
+                localStorage.setItem('greetings', JSON.stringify(greetings));
+            }
+
+            function loadGreetings() {
+                let greetings = JSON.parse(localStorage.getItem('greetings')) || [];
+                greetings = greetings.filter(g => new Date().getTime() - g.timestamp < 3600000); // Remove expired greetings
+                greetings.forEach(displayGreeting);
+            }
+
+            function displayGreeting(greeting) {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <p><strong>${greeting.name}</strong> (${greeting.city}, ${greeting.colonia}): ${greeting.message}</p>
+                `;
+                greetingsList.appendChild(div);
+            }
+        });
+    </script>
+</body>
+</html>
